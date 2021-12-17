@@ -5,6 +5,7 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>lib_LoRaE5.h</itemPath>
+      <itemPath>lib_lcd_explorer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -15,6 +16,7 @@
                    projectFiles="true">
       <itemPath>Test_LoraE5_main.c</itemPath>
       <itemPath>lib_LoRaE5.c</itemPath>
+      <itemPath>lib_lcd_explorer.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -33,7 +35,7 @@
         <targetDevice>PIC24FJ128GA010</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>noID</platformTool>
+        <platformTool>PKOBSKDEPlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.61</languageToolchainVersion>
         <platform>3</platform>
@@ -194,6 +196,9 @@
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
       </C30Global>
+      <PKOBSKDEPlatformTool>
+        <property key="firmware.download.all" value="false"/>
+      </PKOBSKDEPlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>

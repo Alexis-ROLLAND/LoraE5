@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 #include "lib_LoRaE5.h"   
-
+#include "lib_lcd_explorer.h"
 /*----------------------------------------------------------------------------*/
 /*Insérer Ici les bits de configuration pour le µC 							  */
 /* -> Copier / Coller depuis le fichier Config_Pic24.txt					  */
@@ -46,9 +46,6 @@
 
 /* Déclarations des variables globales 	*/
 
-
-
-
 /* Programme Principal			*/
 int main(void)
 {
@@ -63,12 +60,25 @@ int main(void)
     // For debug Purposes
     U2MODE = 0x8008;    // High speed mode
     U2STA = 0x0400;
-    U2BRG = 51;        // 9600bps @FCY=4MHz
+    U2BRG = 104;        // 9600bps @FCY=4MHz
 
-
+    // Configuration IRQ sur RX
+    IFS1bits.U2RXIF = 0;    // sécurité
+    IPC7bits.U2RXIP = 4;    // Default priority level
+    IEC1bits.U2RXIE = 1;    // Enable UART2 Rx IRQ
+    
+    lcd_init();
+    lcd_puts("LoRa E5 - OK");
+    __delay_ms(1000);
+    
+    
 while(1)
     {
-
+    lcd_clear();
+    __delay_ms(5000);
+    E5_sendVER();
+     
+     
     }
 }					
 
