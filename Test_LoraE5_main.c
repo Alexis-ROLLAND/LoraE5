@@ -45,12 +45,14 @@
 #define LED3    LATAbits.LATA0
 
 /* Déclarations des variables globales 	*/
+uint8_t Data[51];
 
 /* Programme Principal			*/
 int main(void)
 {
 // Variables locales au main
-
+    e5_error_t Res;
+    uint8_t Nb=0;
 
 // Initialisations
 // GPIOS
@@ -61,24 +63,46 @@ int main(void)
     U2MODE = 0x8008;    // High speed mode
     U2STA = 0x0400;
     U2BRG = 104;        // 9600bps @FCY=4MHz
+    
+    // Timer 1 - 500ms IRQ
+    T1CON = 0x0030;     // Prediv by 256
+    PR1 = VAL_500MS;    // With Fosc=4MHz    
 
     // Configuration IRQ sur RX
     IFS1bits.U2RXIF = 0;    // sécurité
     IPC7bits.U2RXIP = 4;    // Default priority level
     IEC1bits.U2RXIE = 1;    // Enable UART2 Rx IRQ
     
+    // Config IRQ on Timer1
+    IFS0bits.T1IF = 0;      // Sécurité
+    IPC0bits.T1IP = 5;
+    IEC0bits.T1IE = 0;      // Disable Timer1 IRQ
+    
     lcd_init();
     lcd_puts("LoRa E5 - OK");
     __delay_ms(1000);
+    lcd_clear();
+    Res = E5_CheckConnection();
+    if (Res == E5_OK) lcd_puts("E5 Connected OK");
+    else    lcd_puts("E5 NOT connected");
+       
+    __delay_ms(1000);
+    lcd_clear();
     
+    Res = E5_Join(true);
+    if (Res == E5_OK) lcd_puts("E5 Join OK");
+    else    
+        {
+        lcd_puts("E5 Join Error");
+        while(1);
+        }
     
 while(1)
     {
-    lcd_clear();
     __delay_ms(5000);
-    E5_sendVER();
-     
-     
+    sprintf(Data,"Nb=%d",Nb);
+    E5_SendStrMsg(Data);
+    Nb++; 
     }
 }					
 
