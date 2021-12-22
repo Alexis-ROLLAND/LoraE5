@@ -1,13 +1,8 @@
-/***************************************************************************
-* Nom du fichier:
-* Description	: 
-*
-* Auteur	: 
-* Créé le	:
-* Compilateur	: 
-***************************************************************************
-* Modifié le  	:
-***************************************************************************/
+/**
+* @file lib_LoRaE5.h
+* 
+* @author Alexis ROLLAND 
+*/
 
 #ifndef __LIB_LORAE5_H__
 #define __LIB_LORAE5_H__
@@ -17,7 +12,31 @@
 #include <string.h>
 typedef enum {false,true} bool_t;  
 typedef enum {WAIT_SOL,RX_ON,EOL_RECEIVED} RxStatus_t;
-//typedef enum {AT_IDLE, AT_IN_PROGRESS, AT_RX_COMPLETE} at_status_t;
+typedef enum {  RESP_UNKNOWN,
+                RESP_AT,
+                RESP_VER,
+                RESP_ID,
+                RESP_RESET,
+                RESP_MSG,
+                RESP_CMSG,
+                RESP_MSGHEX,
+                RESP_CMSGHEX,
+                RESP_PMSG,
+                RESP_PMSGHEX,
+                RESP_PORT,
+                RESP_ADR,
+                RESP_DR,
+                RESP_CH,
+                RESP_POWER,
+                RESP_RETRY,
+                RESP_RXWIN2,
+                RESP_RXWIN1,
+                RESP_KEY,
+                RESP_MODE,
+                RESP_JOIN,
+                RESP_CLASS                
+                } resp_id_t;
+                
 
 typedef enum{
             E5_OK,
@@ -35,42 +54,50 @@ typedef enum{TIME_OUT_STOPPED, TIME_OUT_RUNNING,TIME_OUT_EXPIRED} TimeOutStatus_
 
 #define VAL_500MS   7812        // @Fcy=4MHz
 
-/*--------------------------------------------------------------------------*/
-/* Fonction  :  e5_error_t  E5_CheckConnection(void);                       */
-/* Description : Checks connection between MCU and LoRa-E5 module           */
-/*              using the "dummy" AT command                                */
-/* PE :                                                                     */
-/* ps :                                                                     */
-/* Mode d'emploi :                                                          */
-/*--------------------------------------------------------------------------*/
+/**
+ * @brief Checks UART connection between the app MCU and the LoRa-E5-Mini module
+ * This function uses the dummy AT command
+ * 
+ * @return E5_OK on success 
+*/
 e5_error_t  E5_CheckConnection(void);
 
-/*--------------------------------------------------------------------------*/
-/* Fonction  :                                                              */
-/* Description :                                                            */
-/* PE :                                                                     */
-/* ps :                                                                     */
-/* Mode d'emploi :                                                          */
-/*--------------------------------------------------------------------------*/
+/**
+ * @brief  Initiates a joining process with the configured LoRaWAN app 
+ * 
+ * @param[in] ForceJoin true to use the force join (disconnect before joining)
+ * 
+ * @return E5_OK on success 
+*/
 e5_error_t  E5_Join(bool_t ForceJoin);
 
-/*--------------------------------------------------------------------------*/
-/* Fonction  :                                                              */
-/* Description :                                                            */
-/* PE :                                                                     */
-/* ps :                                                                     */
-/* Mode d'emploi :                                                          */
-/*--------------------------------------------------------------------------*/
+/**
+ * @brief Sends a string to the LoRaWAN app 
+ * 
+ * @param[in] pMsg Pointer to the "CString" to transmit
+ * 
+ * @return E5_OK on success 
+*/
 e5_error_t  E5_SendStrMsg(uint8_t *pMsg);
 
-/*--------------------------------------------------------------------------*/
-/* Fonction  :                                                              */
-/* Description :                                                            */
-/* PE :                                                                     */
-/* ps :                                                                     */
-/* Mode d'emploi :                                                          */
-/*--------------------------------------------------------------------------*/
-e5_error_t  E5_getVER(void);
+/**
+ * @brief Sends a byte buffer to the LoRaWAN app 
+ * 
+ * @param[in] pByteBuffer Pointer to the data to Tx
+ * @param[in] size number of bytes to Tx
+ * 
+ * @return E5_OK on success 
+*/
+e5_error_t  E5_SendByteMsg(uint8_t *pByteBuffer, uint8_t size);
+
+/**
+ * @brief Resets the LoRa-E5 module
+ * 
+ * @warning Wait for at least 5 seconds before trying a join procedure after a reset
+ * 
+ * @return E5_OK on success 
+*/
+e5_error_t  E5_Reset(void);
 
 /*--------------------------------------------------------------------------*/
 /* Fonction  :                                                              */
@@ -103,12 +130,13 @@ void    E5_ll_send(uint8_t *pstr);
 
 /*--------------------------------------------------------------------------*/
 /* Fonction  :                                                              */
-/* Description : removes RC & LF cars from the rx frame                     */
+/* Description : removes RC & LF cars from the end rx frame                 */
+/*                  removes the initial "+"                                 */
 /* PE :                                                                     */
-/* ps :                                                                     */
+/* ps :   Frame Resp Id                                                     */
 /* Mode d'emploi :                                                          */
 /*--------------------------------------------------------------------------*/
-void    E5_trim(uint8_t *pDest, uint8_t *pSource);
+resp_id_t    E5_trim(uint8_t *pDest, uint8_t *pSource);
 
 /*--------------------------------------------------------------------------*/
 /* Fonction  :                                                              */

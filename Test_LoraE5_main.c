@@ -44,6 +44,8 @@
 /* Macros   */
 #define LED3    LATAbits.LATA0
 
+void    ErrorHandler(void);
+
 /* Déclarations des variables globales 	*/
 uint8_t Data[51];
 
@@ -53,7 +55,8 @@ int main(void)
 // Variables locales au main
     e5_error_t Res;
     uint8_t Nb=0;
-
+    uint8_t Buff[4]={0xAA,0x00,0xFF,0x55};
+    
 // Initialisations
 // GPIOS
     TRISAbits.TRISA0 = 0;   // LED3 GPIO Output
@@ -81,12 +84,27 @@ int main(void)
     lcd_init();
     lcd_puts("LoRa E5 - OK");
     __delay_ms(1000);
+    
     lcd_clear();
     Res = E5_CheckConnection();
     if (Res == E5_OK) lcd_puts("E5 Connected OK");
-    else    lcd_puts("E5 NOT connected");
-       
+    else {
+        lcd_puts("E5 NOT connected");
+        ErrorHandler();
+    }
+    
     __delay_ms(1000);
+    
+    lcd_clear();
+    Res = E5_Reset();
+    if (Res == E5_OK) lcd_puts("E5 Reset OK");
+    else{
+        lcd_puts("E5 NOT resetted");
+        ErrorHandler();
+    }
+    
+          
+    __delay_ms(5000);
     lcd_clear();
     
     Res = E5_Join(true);
@@ -94,15 +112,28 @@ int main(void)
     else    
         {
         lcd_puts("E5 Join Error");
-        while(1);
+        ErrorHandler();
         }
     
 while(1)
     {
     __delay_ms(5000);
-    sprintf(Data,"Nb=%d",Nb);
-    E5_SendStrMsg(Data);
-    Nb++; 
+    lcd_clear();
+    Res = E5_SendByteMsg(Buff, 4);
+    if (Res == E5_OK) lcd_puts("E5 Hex Tx OK");
+    else    
+        {
+        lcd_puts("E5 Hex Tx Error");
+        ErrorHandler();
+        }
     }
 }					
 
+void    ErrorHandler(void)
+{
+    while(1)
+    {
+        LED3=~LED3;
+         __delay_ms(200);
+    }
+}
